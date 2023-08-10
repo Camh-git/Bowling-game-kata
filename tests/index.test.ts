@@ -23,6 +23,12 @@ describe("Test playing a frame", () => {
     expect(playFrame(override)).toStrictEqual([4, 3]);
     override.ballScores = [2, 6];
     expect(playFrame(override)).toStrictEqual([2, 6]);
+    override.ballScores = [5, 3];
+    expect(playFrame(override)).toStrictEqual([5, 3]);
+    override.ballScores = [2, 2];
+    expect(playFrame(override)).toStrictEqual([2, 2]);
+    override.ballScores = [7, 1];
+    expect(playFrame(override)).toStrictEqual([7, 1]);
   });
 });
 
@@ -35,10 +41,12 @@ describe("Test play frame edge cases", () => {
     expect(playFrame(override)).toStrictEqual([0, 0]);
   });
 
-  test("Dont allow values greater than 10", () => {
+  test("Dont allow values of totals greater than 10", () => {
     override.ballScores = [11, 0];
     expect(playFrame(override)).toStrictEqual([0, 0]);
     override.ballScores = [0, 11];
+    expect(playFrame(override)).toStrictEqual([0, 0]);
+    override.ballScores = [5, 6];
     expect(playFrame(override)).toStrictEqual([0, 0]);
   });
 

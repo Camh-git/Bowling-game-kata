@@ -1,3 +1,4 @@
+import { isNumberObject } from "util/types";
 import { ballResult, parseBallResult } from "./types/ballResult";
 type frameScore = [ballResult, ballResult];
 
@@ -9,18 +10,14 @@ export interface playFrameTestingOverRide {
   ballScores?: Array<number>;
 }
 export function playFrame(overRide: playFrameTestingOverRide): frameScore {
-  //setup our frame and run the first round
-  let frameResult: frameScore = [0, 0];
+  //setup the  frame and run the first round
   let pinsRemaining = 10 - playBall(10);
   if (overRide.ballScores) {
     //using the testing override
-    frameResult[0] = parseBallResult(overRide.ballScores[0]);
     pinsRemaining = 10 - overRide.ballScores[0];
-  } else {
-    //running normaly
-    frameResult[0] = parseBallResult(10 - pinsRemaining);
   }
-  console.log(`remaining pins: ${pinsRemaining}<<<<<<<<<<<<<<<<<<<<<<`);
+  let frameResult: frameScore = [parseBallResult(10 - pinsRemaining), 0];
+
   //play a second ball if you didn't get a strike
   if (pinsRemaining > 0) {
     if (overRide.ballScores) {
@@ -31,20 +28,36 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
     }
 
     //check for spare
-    if (typeof frameResult[0] == "number") {
-      //This is just to make sure that TS knows frameResult[0] is an int when we try to do math with it
+    if (typeof frameResult[0] === "number") {
+      //The if is just to make sure that TS knows frameResult[0] is a number when we try to do math with it
       if (pinsRemaining === 0) {
         frameResult[1] = "spare";
       } else {
         frameResult[1] = parseBallResult(10 - frameResult[0] - pinsRemaining);
       }
-    } else {
-      //set ball 2 to 0 if you got a strike
-      frameResult[1] = 0;
     }
   }
 
+  //If the total of the 2 balls is greater than 10 return 0
+  if (
+    typeof frameResult[0] === "number" &&
+    typeof frameResult[1] === "number" &&
+    frameResult[0] + frameResult[1] > 10
+  ) {
+    (frameResult[0] = 0), (frameResult[1] = 0); //This should be [0],[1]=0 but the liner keeps breaking it
+  }
   return frameResult;
 }
 
 export function calculateScore(frames: Array<frameScore>) {}
+
+//Running the game
+const noOverride: playFrameTestingOverRide = {};
+
+function autoPlay() {
+  let frames: Array<frameScore> = [];
+  for (let i = 0; i < 10; i++) {
+    frames.push(playFrame(noOverride));
+  }
+  console.log(`Game over, score: ${calculateScore(frames)}`);
+}
