@@ -31,16 +31,17 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
     }
 
     //check for spare
-    if (pinsRemaining === 0) {
-      frameResult[1] = "spare";
+    if (typeof frameResult[0] == "number") {
+      //This is just to make sure that TS knows frameResult[0] is an int when we try to do math with it
+      if (pinsRemaining === 0) {
+        frameResult[1] = "spare";
+      } else {
+        frameResult[1] = parseBallResult(10 - frameResult[0] - pinsRemaining);
+      }
     } else {
-      frameResult[1] = parseBallResult(
-        parseInt(frameResult[0]) - pinsRemaining
-      );
+      //set ball 2 to 0 if you got a strike
+      frameResult[1] = 0;
     }
-  } else {
-    //set ball 2 to 0 if you got a strike
-    frameResult[1] = 0;
   }
 
   return frameResult;
