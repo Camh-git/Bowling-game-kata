@@ -1,5 +1,6 @@
 import { isNumberObject } from "util/types";
 import { ballResult, parseBallResult } from "./types/ballResult";
+
 type frameScore = [ballResult, ballResult];
 
 export function playBall(remainingPins: number): number {
@@ -38,7 +39,7 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
     }
   }
 
-  //If the total of the 2 balls is greater than 10 return 0
+  //If the total of the 2 balls is greater than 10 return 0(this can't happen in production since playball is limited to the number of remaining pins)
   if (
     typeof frameResult[0] === "number" &&
     typeof frameResult[1] === "number" &&
@@ -49,7 +50,22 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
   return frameResult;
 }
 
-export function calculateScore(frames: Array<frameScore>) {}
+export function calculateScore(frames: Array<frameScore>): number {
+  let score: number = 0;
+  frames.forEach((entry) => {
+    if (entry[0] === "strike") {
+      //dothing
+    } else if (entry[1] === "spare") {
+      //dothing
+    } else if (typeof entry[0] === "number" && typeof entry[1] === "number") {
+      score += entry[0] + entry[1];
+    } else {
+      //one of the passed frames was invalid
+      return 0;
+    }
+  });
+  return score;
+}
 
 //Running the game
 const noOverride: playFrameTestingOverRide = {};

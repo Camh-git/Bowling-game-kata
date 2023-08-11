@@ -41,7 +41,7 @@ describe("Test play frame edge cases", () => {
     expect(playFrame(override)).toStrictEqual([0, 0]);
   });
 
-  test("Dont allow values of totals greater than 10", () => {
+  test("Dont allow values that total to greater than 10", () => {
     override.ballScores = [11, 0];
     expect(playFrame(override)).toStrictEqual([0, 0]);
     override.ballScores = [0, 11];
@@ -50,7 +50,5 @@ describe("Test play frame edge cases", () => {
     expect(playFrame(override)).toStrictEqual([0, 0]);
   });
 
-  test("Don't allow characters", () => {
-    //Taken care of by TS not allowing the override or playBall to accept strings
-  });
+  //Blocking character input is taken care of by TS not allowing the override or playBall to accept strings
 });
