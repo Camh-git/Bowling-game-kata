@@ -23,9 +23,9 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
   if (pinsRemaining > 0) {
     if (overRide.ballScores) {
       //using the testing override
-      pinsRemaining = pinsRemaining - overRide.ballScores[1];
+      pinsRemaining -= overRide.ballScores[1];
     } else {
-      pinsRemaining = pinsRemaining - playBall(pinsRemaining);
+      pinsRemaining -= playBall(pinsRemaining);
     }
 
     //check for spare
@@ -45,16 +45,45 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
     typeof frameResult[1] === "number" &&
     frameResult[0] + frameResult[1] > 10
   ) {
-    (frameResult[0] = 0), (frameResult[1] = 0); //This should be [0],[1]=0 but the liner keeps breaking it
+    (frameResult[0] = 0), (frameResult[1] = 0); //This should be [0],[1]=0 but the linter keeps breaking it
   }
   return frameResult;
 }
 
 export function calculateScore(frames: Array<frameScore>): number {
   let score: number = 0;
+  let index = 0;
   frames.forEach((entry) => {
     if (entry[0] === "strike") {
-      //dothing
+      //check if player gets the extra ball for a last frame strike
+      if (index == 10) {
+        frames.push(playFrame(NO_OVERRIDE));
+        if (frames[10][0] === "strike") {
+          //See if the player gets the 3rd go on the final frame for getting a strike with the bonus ball, if they do add it's score immediately
+          frames.push(playFrame(NO_OVERRIDE));
+          if (frames[11][0] === "strike") {
+            //add the full 20 points for the final bonus ball strike
+            score += 20;
+          } else {
+            //add the final ball score and the 10 from the previous strike
+            //score += frames[11][0];
+            //score += frames[11][1];
+            score += 10;
+          }
+        } else if (frames[10][1] === "spare") {
+          //See if the player gets the 3rd go on the final frame for getting a spare with the bonus ball, if they do add it's score immediately
+          frames.push(playFrame(NO_OVERRIDE));
+        } else {
+          //score += frames[10][0];
+          //score += frames[10][1];
+          score += 10; //The 10 from the first strike.
+        }
+      } else {
+        //Award this round's points, and next round's
+        //score += frames[index + 1][0];
+        //score += frames[index + 1][1];
+        score += 10; //for this round
+      }
     } else if (entry[1] === "spare") {
       //dothing
     } else if (typeof entry[0] === "number" && typeof entry[1] === "number") {
@@ -63,17 +92,19 @@ export function calculateScore(frames: Array<frameScore>): number {
       //one of the passed frames was invalid
       return 0;
     }
+    index++;
   });
   return score;
 }
 
 //Running the game
-const noOverride: playFrameTestingOverRide = {};
-
+const NO_OVERRIDE: playFrameTestingOverRide = {};
+autoPlay();
 function autoPlay() {
   let frames: Array<frameScore> = [];
+
   for (let i = 0; i < 10; i++) {
-    frames.push(playFrame(noOverride));
+    frames.push(playFrame(NO_OVERRIDE));
   }
-  console.log(`Game over, score: ${calculateScore(frames)}`);
+  //console.log(`Game over, score: ${calculateScore(frames)}`);
 }
