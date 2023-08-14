@@ -1,7 +1,10 @@
-import { isNumberObject } from "util/types";
-import { ballResult, parseBallResult } from "./types/ballResult";
+import {
+  ballResult,
+  parseBallResult,
+  ballResultToInt,
+} from "./types/ballResult";
 
-type frameScore = [ballResult, ballResult];
+export type frameScore = [ballResult, ballResult];
 
 export function playBall(remainingPins: number): number {
   return Math.random() * (remainingPins + 1);
@@ -57,6 +60,7 @@ export function calculateScore(frames: Array<frameScore>): number {
     if (entry[0] === "strike") {
       //check if player gets the extra ball for a last frame strike
       if (index == 10) {
+        //TODO: fix this since the max is 3 balls per frame
         frames.push(playFrame(NO_OVERRIDE));
         if (frames[10][0] === "strike") {
           //See if the player gets the 3rd go on the final frame for getting a strike with the bonus ball, if they do add it's score immediately
@@ -85,7 +89,19 @@ export function calculateScore(frames: Array<frameScore>): number {
         score += 10; //for this round
       }
     } else if (entry[1] === "spare") {
-      //dothing
+      if (index == 10) {
+        //For a final round spare we have already used 2 balls and so only have our 1 bonus shot left
+        score += 10 + playBall(10);
+      } else {
+        //Award this round's points, and next ball's
+        if (typeof frames[index + 1] === "number") {
+          score += 10;
+          score += ballResultToInt(frames[index + 1][0]);
+        } else {
+          score += 10; //simple score for getting a strike on the following ball
+        }
+        score += 10;
+      }
     } else if (typeof entry[0] === "number" && typeof entry[1] === "number") {
       score += entry[0] + entry[1];
     } else {
@@ -96,11 +112,10 @@ export function calculateScore(frames: Array<frameScore>): number {
   });
   return score;
 }
-
 //Running the game
 const NO_OVERRIDE: playFrameTestingOverRide = {};
 autoPlay();
-function autoPlay() {
+export function autoPlay() {
   let frames: Array<frameScore> = [];
 
   for (let i = 0; i < 10; i++) {
