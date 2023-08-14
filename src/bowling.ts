@@ -70,23 +70,23 @@ export function calculateScore(frames: Array<frameScore>): number {
             score += 20;
           } else {
             //add the final ball score and the 10 from the previous strike
-            //score += frames[11][0];
-            //score += frames[11][1];
+            score += ballResultToInt(frames[11][0]);
+            score += ballResultToInt(frames[11][1]);
             score += 10;
           }
         } else if (frames[10][1] === "spare") {
           //See if the player gets the 3rd go on the final frame for getting a spare with the bonus ball, if they do add it's score immediately
           frames.push(playFrame(NO_OVERRIDE));
         } else {
-          //score += frames[10][0];
-          //score += frames[10][1];
+          score += ballResultToInt(frames[10][0]);
+          score += ballResultToInt(frames[10][1]);
           score += 10; //The 10 from the first strike.
         }
       } else {
         //Award this round's points, and next round's
-        //score += frames[index + 1][0];
-        //score += frames[index + 1][1];
-        score += 10; //for this round
+        score += ballResultToInt(frames[index + 1][0]);
+        score += ballResultToInt(frames[index + 1][1]);
+        score += 10;
       }
     } else if (entry[1] === "spare") {
       if (index == 10) {
