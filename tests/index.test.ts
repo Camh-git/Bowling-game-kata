@@ -68,6 +68,7 @@ describe("Test calculating the score", () => {
     [9, 0],
     [0, 5],
   ];
+  //default total: 75
   test("Check a set of scores with no spares or strikes", () => {
     expect(calculateScore(testResults)).toBe(75);
     (testResults[0][1] = 7), (testResults[3][1] = 7);
@@ -76,17 +77,33 @@ describe("Test calculating the score", () => {
     expect(calculateScore(testResults)).toBe(81);
     (testResults[0][1] = 2), (testResults[3][1] = 2);
   });
-  test("Check spares and strikes", () => {
+  test("Check strikes", () => {
     //first make sure that testResults is back to default
+    testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[0] = ["strike", 0];
     expect(calculateScore(testResults)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2
+    testResults[1] = [1, 2];
+    expect(calculateScore(testResults)).toBe(85); //75 + the 7 we added to frame 1 + the 3 we scored in frame 2
+    //return the array to the default
+    testResults[0] = [1, 2];
+    testResults[0] = [2, 7];
+  });
+  test("Check spares", () => {
+    //first make sure that testResults is back to default
+    testResults[0] = [1, 2];
+    expect(calculateScore(testResults)).toBe(75);
     testResults[0] = [5, "spare"];
     expect(calculateScore(testResults)).toBe(84); //75 + the 7 we added to frame 1 + the 2 from frame 2 ball 1
+    testResults[1] = [7, 2];
+    expect(calculateScore(testResults)).toBe(89); //75 + the 7 we added to frame 1 + the 7 from frame 2 ball 1
+    //return the array to the default
     testResults[0] = [1, 2];
+    testResults[1] = [2, 7];
   });
   test("Test games ending in spares and strikes", () => {
     //first make sure that testResults is back to default
+    testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[9] = ["strike", 0];
     expect(calculateScore(testResults)).toBe(90); //70 from the first 9 frames + 10 from final frame + 5 from our overwritten extra ball + 5 from strike bonus
@@ -102,6 +119,7 @@ describe("Test calculating the score", () => {
 describe("Test calculate score edge cases", () => {
   //ensure that it only runs with exactly 10 frames
   //return 0 if any of the frame has a total greater than 10, or a ball less than 0
+  //strike and spare in same frame
 });
 
 describe("Test autoplay and running a full game", () => {

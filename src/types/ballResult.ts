@@ -62,6 +62,7 @@ export function ballResultToInt(score: ballResult): number {
     case "spare":
     case "strike":
       return 10;
+    case undefined:
     default:
       return 0;
   }
