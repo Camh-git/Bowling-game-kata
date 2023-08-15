@@ -82,9 +82,11 @@ describe("Test calculating the score", () => {
     testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[0] = ["strike", 0];
-    expect(calculateScore(testResults)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2
-    testResults[1] = [1, 2];
-    expect(calculateScore(testResults)).toBe(85); //75 + the 7 we added to frame 1 + the 3 we scored in frame 2
+    expect(calculateScore(testResults)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2(strike bonus)
+    testResults[1] = [2, 2];
+    expect(calculateScore(testResults)).toBe(81); //75 + the 7 we added to frame 1 + strike bonus of 4 - the 5 we took from frame 2
+    testResults[1] = [5, 3];
+    expect(calculateScore(testResults)).toBe(89); //75 + the 7 we added to frame 1 + strike bonus of 8  - the 1 we took from frame 2
     //return the array to the default
     testResults[0] = [1, 2];
     testResults[0] = [2, 7];

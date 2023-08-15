@@ -59,7 +59,7 @@ export function calculateScore(frames: Array<frameScore>): number {
   frames.forEach((entry) => {
     if (entry[0] === "strike") {
       //check if player gets the extra ball for a last frame strike
-      if (index == 9) {
+      if (index > 9) {
         //TODO: fix this since the max is 3 balls per frame
         frames.push(playFrame(NO_OVERRIDE));
         if (frames[10][0] === "strike") {
@@ -84,12 +84,13 @@ export function calculateScore(frames: Array<frameScore>): number {
         }
       } else {
         //Award this round's points, and next round's
-        score += ballResultToInt(frames[index + 1][0]);
-        score += ballResultToInt(frames[index + 1][1]);
-        score += 10;
+        score +=
+          10 +
+          ballResultToInt(frames[index + 1][0]) +
+          ballResultToInt(frames[index + 1][1]);
       }
     } else if (entry[1] === "spare") {
-      if (index === 9) {
+      if (index > 9) {
         //For a final round spare we have already used 2 balls and so only have our 1 bonus shot left
         score += 10 + playBall(10);
       } else {
@@ -97,6 +98,7 @@ export function calculateScore(frames: Array<frameScore>): number {
         score += 10 + ballResultToInt(frames[index + 1][0]);
       }
     } else if (typeof entry[0] === "number" && typeof entry[1] === "number") {
+      //Add the value of a frame with no spares or strikes
       score += entry[0] + entry[1];
     } else {
       //one of the passed frames was invalid
