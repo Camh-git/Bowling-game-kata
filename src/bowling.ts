@@ -6,29 +6,37 @@ import {
 
 export type frameScore = [ballResult, ballResult];
 
-export function playBall(remainingPins: number): number {
-  return Math.random() * (remainingPins + 1);
+export function playBall(remainingPins: number, overRide: number): number {
+  //returns a random number less than the remaining pins unless overridden(passing any value over 10 will ignore the override as it is invalid)
+  if (overRide <= 10) {
+    return overRide;
+  }
+  return Math.floor(Math.random() * (remainingPins + 1));
 }
 export interface playFrameTestingOverRide {
   //Allows you to overwrite the random numbers so that playFrame can be tested
-  ballScores?: Array<number>;
+  scores?: Array<number>;
 }
-export function playFrame(overRide: playFrameTestingOverRide): frameScore {
+
+export function playFrame(
+  frameOverRide: playFrameTestingOverRide,
+  ballOverRide: number
+): frameScore {
   //setup the  frame and run the first round
-  let pinsRemaining = 10 - playBall(10);
-  if (overRide.ballScores) {
+  let pinsRemaining = 10 - playBall(10, ballOverRide);
+  if (frameOverRide.scores) {
     //using the testing override
-    pinsRemaining = 10 - overRide.ballScores[0];
+    pinsRemaining = 10 - frameOverRide.scores[0];
   }
   let frameResult: frameScore = [parseBallResult(10 - pinsRemaining), 0];
 
   //play a second ball if you didn't get a strike
   if (pinsRemaining > 0) {
-    if (overRide.ballScores) {
+    if (frameOverRide.scores) {
       //using the testing override
-      pinsRemaining -= overRide.ballScores[1];
+      pinsRemaining -= frameOverRide.scores[1];
     } else {
-      pinsRemaining -= playBall(pinsRemaining);
+      pinsRemaining -= playBall(pinsRemaining, ballOverRide);
     }
 
     //check for spare
@@ -53,18 +61,22 @@ export function playFrame(overRide: playFrameTestingOverRide): frameScore {
   return frameResult;
 }
 
-export function calculateScore(frames: Array<frameScore>): number {
+export function calculateScore(
+  frames: Array<frameScore>,
+  ballOverRide: Array<number>
+): number {
   let score: number = 0;
   let index = 0;
   frames.forEach((entry) => {
     if (entry[0] === "strike") {
       //check if player gets the extra ball for a last frame strike
-      if (index > 9) {
+      if (index >= 9) {
         //TODO: fix this since the max is 3 balls per frame
-        frames.push(playFrame(NO_OVERRIDE));
+        frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
+
         if (frames[10][0] === "strike") {
           //See if the player gets the 3rd go on the final frame for getting a strike with the bonus ball, if they do add it's score immediately
-          frames.push(playFrame(NO_OVERRIDE));
+          frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
           if (frames[11][0] === "strike") {
             //add the full 20 points for the final bonus ball strike
             score += 20;
@@ -76,7 +88,7 @@ export function calculateScore(frames: Array<frameScore>): number {
           }
         } else if (frames[10][1] === "spare") {
           //See if the player gets the 3rd go on the final frame for getting a spare with the bonus ball, if they do add it's score immediately
-          frames.push(playFrame(NO_OVERRIDE));
+          frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
         } else {
           score += ballResultToInt(frames[10][0]);
           score += ballResultToInt(frames[10][1]);
@@ -90,9 +102,9 @@ export function calculateScore(frames: Array<frameScore>): number {
           ballResultToInt(frames[index + 1][1]);
       }
     } else if (entry[1] === "spare") {
-      if (index > 9) {
+      if (index >= 9) {
         //For a final round spare we have already used 2 balls and so only have our 1 bonus shot left
-        score += 10 + playBall(10);
+        score += 10 + playBall(10, ballOverRide[0]);
       } else {
         //Award this round's points, and next ball's
         score += 10 + ballResultToInt(frames[index + 1][0]);
@@ -109,13 +121,14 @@ export function calculateScore(frames: Array<frameScore>): number {
   return score;
 }
 //Running the game
-const NO_OVERRIDE: playFrameTestingOverRide = {};
+const NO_FRAME_OVERRIDE: playFrameTestingOverRide = { scores: [] };
+const NO_BALL_OVERRIDE: number = 99; //not strictly necesary, but nice for readability/understanding
 autoPlay();
 export function autoPlay() {
   let frames: Array<frameScore> = [];
 
   for (let i = 0; i < 10; i++) {
-    frames.push(playFrame(NO_OVERRIDE));
+    frames.push(playFrame(NO_FRAME_OVERRIDE, NO_BALL_OVERRIDE));
   }
   //console.log(`Game over, score: ${calculateScore(frames)}`);
 }

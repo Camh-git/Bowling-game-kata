@@ -8,48 +8,50 @@ import {
 import "jest";
 
 describe("Test playing a frame", () => {
-  let override: playFrameTestingOverRide = { ballScores: [10, 0] };
+  let frameOverride: playFrameTestingOverRide = { scores: [10, 0] };
+  let ballOverRide: number = 99;
   test("Test high and low scores", () => {
-    expect(playFrame(override)).toStrictEqual(["strike", 0]);
-    override.ballScores = [2, 8];
-    expect(playFrame(override)).toStrictEqual([2, "spare"]);
-    override.ballScores = [0, 0];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual(["strike", 0]);
+    frameOverride.scores = [2, 8];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([2, "spare"]);
+    frameOverride.scores = [0, 0];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
   });
   test("Test a variety of more normal scores", () => {
-    override.ballScores = [1, 0];
-    expect(playFrame(override)).toStrictEqual([1, 0]);
-    override.ballScores = [0, 1];
-    expect(playFrame(override)).toStrictEqual([0, 1]);
-    override.ballScores = [4, 3];
-    expect(playFrame(override)).toStrictEqual([4, 3]);
-    override.ballScores = [2, 6];
-    expect(playFrame(override)).toStrictEqual([2, 6]);
-    override.ballScores = [5, 3];
-    expect(playFrame(override)).toStrictEqual([5, 3]);
-    override.ballScores = [2, 2];
-    expect(playFrame(override)).toStrictEqual([2, 2]);
-    override.ballScores = [7, 1];
-    expect(playFrame(override)).toStrictEqual([7, 1]);
+    frameOverride.scores = [1, 0];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([1, 0]);
+    frameOverride.scores = [0, 1];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 1]);
+    frameOverride.scores = [4, 3];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([4, 3]);
+    frameOverride.scores = [2, 6];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([2, 6]);
+    frameOverride.scores = [5, 3];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([5, 3]);
+    frameOverride.scores = [2, 2];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([2, 2]);
+    frameOverride.scores = [7, 1];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([7, 1]);
   });
 });
 
 describe("Test play frame edge cases", () => {
-  let override: playFrameTestingOverRide = { ballScores: [0, 0] };
+  let frameOverride: playFrameTestingOverRide = { scores: [0, 0] };
+  let ballOverRide: number = 99;
   test("Dont allow negatives (in either postion) ", () => {
-    override.ballScores = [-1, 0];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
-    override.ballScores = [0, -1];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
+    frameOverride.scores = [-1, 0];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
+    frameOverride.scores = [0, -1];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
   });
 
   test("Dont allow values that total to greater than 10", () => {
-    override.ballScores = [11, 0];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
-    override.ballScores = [0, 11];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
-    override.ballScores = [5, 6];
-    expect(playFrame(override)).toStrictEqual([0, 0]);
+    frameOverride.scores = [11, 0];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
+    frameOverride.scores = [0, 11];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
+    frameOverride.scores = [5, 6];
+    expect(playFrame(frameOverride, ballOverRide)).toStrictEqual([0, 0]);
   });
 
   //Blocking character input is taken care of by TS not allowing the override or playBall to accept strings
@@ -68,56 +70,59 @@ describe("Test calculating the score", () => {
     [9, 0],
     [0, 5],
   ];
+  let frameOverRide: playFrameTestingOverRide = { scores: [] };
+  let ballOverRide: Array<number> = [99]; //TODO: change this array back into a single num if you choose not to use this approach
   //default total: 75
   test("Check a set of scores with no spares or strikes", () => {
-    expect(calculateScore(testResults)).toBe(75);
+    expect(calculateScore(testResults, ballOverRide)).toBe(75);
     (testResults[0][1] = 7), (testResults[3][1] = 7);
-    expect(calculateScore(testResults)).toBe(85);
+    expect(calculateScore(testResults, ballOverRide)).toBe(85);
     testResults[0][1] = 3;
-    expect(calculateScore(testResults)).toBe(81);
+    expect(calculateScore(testResults, ballOverRide)).toBe(81);
     (testResults[0][1] = 2), (testResults[3][1] = 2);
   });
   test("Check strikes", () => {
     //first make sure that testResults is back to default
-    expect(calculateScore(testResults)).toBe(75);
+    expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[0] = ["strike", 0];
-    expect(calculateScore(testResults)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2(strike bonus)
+    expect(calculateScore(testResults, ballOverRide)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2(strike bonus)
     testResults[1] = [2, 2];
-    expect(calculateScore(testResults)).toBe(81); //75 + the 7 we added to frame 1 + strike bonus of 4 - the 5 we took from frame 2
+    expect(calculateScore(testResults, ballOverRide)).toBe(81); //75 + the 7 we added to frame 1 + strike bonus of 4 - the 5 we took from frame 2
     testResults[1] = [5, 3];
-    expect(calculateScore(testResults)).toBe(89); //75 + the 7 we added to frame 1 + strike bonus of 8  - the 1 we took from frame 2
+    expect(calculateScore(testResults, ballOverRide)).toBe(89); //75 + the 7 we added to frame 1 + strike bonus of 8  - the 1 we took from frame 2
     //return the array to the default
     testResults[0] = [1, 2];
     testResults[0] = [2, 7];
   });
   test("Check spares", () => {
     //first make sure that testResults is back to default
-    expect(calculateScore(testResults)).toBe(75);
+    expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[0] = [5, "spare"];
-    expect(calculateScore(testResults)).toBe(84); //75 + the 7 we added to frame 1 + the 2 from frame 2 ball 1
+    expect(calculateScore(testResults, ballOverRide)).toBe(84); //75 + the 7 we added to frame 1 + the 2 from frame 2 ball 1
     testResults[1] = [7, 2];
-    expect(calculateScore(testResults)).toBe(89); //75 + the 7 we added to frame 1 + the 7 from frame 2 ball 1
+    expect(calculateScore(testResults, ballOverRide)).toBe(89); //75 + the 7 we added to frame 1 + the 7 from frame 2 ball 1
     //return the array to the default
     testResults[0] = [1, 2];
     testResults[1] = [2, 7];
   });
-  test("Test games ending in spares", () => {
+  test("Test games ending in strikes", () => {
     //first make sure that testResults is back to default
-    expect(calculateScore(testResults)).toBe(75);
+    expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[9] = ["strike", 0];
-    expect(calculateScore(testResults)).toBe(90); //70 from the first 9 frames + 10 from final frame + 5 from our extra ball override + 5 from strike bonus
+    expect(calculateScore(testResults, ballOverRide)).toBe(80); //70 from the first 9 frames + 5 from additions to final frame + 5 from strike bonus
     //get a strike with the bonus ball
-    expect(calculateScore(testResults)).toBe(95); //70 from the first 9 frames + 20 from final frame(w/strike on ball 2) + 5 for extra roll
+    expect(calculateScore(testResults, ballOverRide)).toBe(95); //70 from the first 9 frames + 20 from final frame(w/strike on ball 2) + 5 for extra roll
     //Get a strike with all 3 bonus balls
-    expect(calculateScore(testResults)).toBe(100); //70 from the first 9 frames + 30 for our 3 strikes on the last frame
+    expect(calculateScore(testResults, ballOverRide)).toBe(100); //70 from the first 9 frames + 30 for our 3 strikes on the last frame
     //return the array to the default
     testResults[9] = [0, 5];
   });
-  test("Test games ending in strikes", () => {
+  test("Test games ending in spares", () => {
     //first make sure that testResults is back to default
-    expect(calculateScore(testResults)).toBe(75);
+    expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[9] = [5, "spare"];
-    expect(calculateScore(testResults)).toBe(87); //75 + 5 from bonus ball override + the 5 we added to frame 9 + 2 from spare bonus (override:[2,3])
+    expect(calculateScore(testResults, [5])).toBe(85); //75 + 5 from bonus ball override + the 5 we added to frame 9
+    expect(calculateScore(testResults, [9])).toBe(89); //75 + 9 from bonus ball override + the 5 we added to frame 9
     //return the array to the default
     testResults[9] = [0, 5];
   });
