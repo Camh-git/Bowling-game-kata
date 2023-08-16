@@ -79,7 +79,6 @@ describe("Test calculating the score", () => {
   });
   test("Check strikes", () => {
     //first make sure that testResults is back to default
-    testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[0] = ["strike", 0];
     expect(calculateScore(testResults)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2(strike bonus)
@@ -93,7 +92,6 @@ describe("Test calculating the score", () => {
   });
   test("Check spares", () => {
     //first make sure that testResults is back to default
-    testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[0] = [5, "spare"];
     expect(calculateScore(testResults)).toBe(84); //75 + the 7 we added to frame 1 + the 2 from frame 2 ball 1
@@ -103,24 +101,31 @@ describe("Test calculating the score", () => {
     testResults[0] = [1, 2];
     testResults[1] = [2, 7];
   });
-  test("Test games ending in spares and strikes", () => {
+  test("Test games ending in spares", () => {
     //first make sure that testResults is back to default
-    testResults[0] = [1, 2];
     expect(calculateScore(testResults)).toBe(75);
     testResults[9] = ["strike", 0];
-    expect(calculateScore(testResults)).toBe(90); //70 from the first 9 frames + 10 from final frame + 5 from our overwritten extra ball + 5 from strike bonus
+    expect(calculateScore(testResults)).toBe(90); //70 from the first 9 frames + 10 from final frame + 5 from our extra ball override + 5 from strike bonus
     //get a strike with the bonus ball
-    expect(calculateScore(testResults)).toBe(90); //70 from the first 9 frames + 20 from final frame(w/strike) (15 from our stike on second ball + 5 from 3rd ball)
+    expect(calculateScore(testResults)).toBe(95); //70 from the first 9 frames + 20 from final frame(w/strike on ball 2) + 5 for extra roll
     //Get a strike with all 3 bonus balls
     expect(calculateScore(testResults)).toBe(100); //70 from the first 9 frames + 30 for our 3 strikes on the last frame
+    //return the array to the default
+    testResults[9] = [0, 5];
+  });
+  test("Test games ending in strikes", () => {
+    //first make sure that testResults is back to default
+    expect(calculateScore(testResults)).toBe(75);
     testResults[9] = [5, "spare"];
-    expect(calculateScore(testResults)).toBe(80); //75 + 5 from bonus ball
+    expect(calculateScore(testResults)).toBe(87); //75 + 5 from bonus ball override + the 5 we added to frame 9 + 2 from spare bonus (override:[2,3])
+    //return the array to the default
+    testResults[9] = [0, 5];
   });
 });
 
 describe("Test calculate score edge cases", () => {
   //ensure that it only runs with exactly 10 frames
-  //return 0 if any of the frame has a total greater than 10, or a ball less than 0
+  //return 0 if any of the frames has a total greater than 10, or a ball less than 0
   //strike and spare in same frame
 });
 
