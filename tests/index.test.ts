@@ -70,7 +70,7 @@ describe("Test calculating the score", () => {
     [9, 0],
     [0, 5],
   ];
-  let frameOverRide: playFrameTestingOverRide = { scores: [] };
+  let frameOverRide: playFrameTestingOverRide = { scores: [10, 0] };
   let ballOverRide: Array<number> = [99]; //TODO: change this array back into a single num if you choose not to use this approach
   //default total: 75
   test("Check a set of scores with no spares or strikes", () => {
@@ -109,11 +109,11 @@ describe("Test calculating the score", () => {
     //first make sure that testResults is back to default
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[9] = ["strike", 0];
-    expect(calculateScore(testResults, ballOverRide)).toBe(80); //70 from the first 9 frames + 5 from additions to final frame + 5 from strike bonus
+    ballOverRide = [2, 3];
+    expect(calculateScore(testResults, ballOverRide)).toBe(90); //70 from the first 9 frames + 10 from the final frame + 10 from strike bonus
     //get a strike with the bonus ball
-    expect(calculateScore(testResults, ballOverRide)).toBe(95); //70 from the first 9 frames + 20 from final frame(w/strike on ball 2) + 5 for extra roll
-    //Get a strike with all 3 bonus balls
-    expect(calculateScore(testResults, ballOverRide)).toBe(100); //70 from the first 9 frames + 30 for our 3 strikes on the last frame
+    ballOverRide = [10, 5];
+    expect(calculateScore(testResults, ballOverRide)).toBe(110); //70 from the first 9 frames + 10 from final frame + 30 from strike bonus
     //return the array to the default
     testResults[9] = [0, 5];
   });

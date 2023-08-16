@@ -13,6 +13,7 @@ export function playBall(remainingPins: number, overRide: number): number {
   }
   return Math.floor(Math.random() * (remainingPins + 1));
 }
+//TODO: change it so that rather than having a seperate ball override var we just pass parts of a frameoverride(1 less type to deal with)
 export interface playFrameTestingOverRide {
   //Allows you to overwrite the random numbers so that playFrame can be tested
   scores?: Array<number>;
@@ -71,31 +72,22 @@ export function calculateScore(
     if (entry[0] === "strike") {
       //check if player gets the extra ball for a last frame strike
       if (index >= 9) {
-        //TODO: fix this since the max is 3 balls per frame
-        frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
-
-        if (frames[10][0] === "strike") {
-          //See if the player gets the 3rd go on the final frame for getting a strike with the bonus ball, if they do add it's score immediately
-          frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
-          if (frames[11][0] === "strike") {
-            //add the full 20 points for the final bonus ball strike
-            score += 20;
-          } else {
-            //add the final ball score and the 10 from the previous strike
-            score += ballResultToInt(frames[11][0]);
-            score += ballResultToInt(frames[11][1]);
-            score += 10;
-          }
-        } else if (frames[10][1] === "spare") {
-          //See if the player gets the 3rd go on the final frame for getting a spare with the bonus ball, if they do add it's score immediately
-          frames.push(playFrame(NO_FRAME_OVERRIDE, ballOverRide[0]));
-        } else {
-          score += ballResultToInt(frames[10][0]);
-          score += ballResultToInt(frames[10][1]);
-          score += 10; //The 10 from the first strike.
+        score += 10; //For the inital strike
+        //Play the first bonus ball
+        let bonusScore: number = playBall(10, 99);
+        if (ballOverRide[0] <= 10) {
+          bonusScore = ballOverRide[0];
         }
+
+        //Play the second bonus ball
+        if (ballOverRide[1] && ballOverRide[1] <= 10) {
+          bonusScore += ballOverRide[1];
+        } else {
+          bonusScore += playBall(10, 99);
+        }
+        score += bonusScore * 2; // since we get the score for knocking over the pins and the same number as a strike bonus (if your not supposed to count this twice let me know, it should be as simple to fix as removing the 2* and adjusting the tests)
       } else {
-        //Award this round's points, and next round's
+        //Award this round's points, and the bonus
         score +=
           10 +
           ballResultToInt(frames[index + 1][0]) +
