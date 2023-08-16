@@ -58,22 +58,12 @@ describe("Test play frame edge cases", () => {
 });
 
 describe("Test calculating the score", () => {
-  let testResults: Array<frameScore> = [
-    [1, 2],
-    [2, 7],
-    [3, 6],
-    [4, 2],
-    [5, 3],
-    [6, 2],
-    [7, 2],
-    [8, 1],
-    [9, 0],
-    [0, 5],
-  ];
+  let testResults: Array<frameScore> = backupTestArray();
   let frameOverRide: playFrameTestingOverRide = { scores: [10, 0] };
   let ballOverRide: Array<number> = [99]; //TODO: change this array back into a single num if you choose not to use this approach
   //default total: 75
   test("Check a set of scores with no spares or strikes", () => {
+    testResults = backupTestArray();
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     (testResults[0][1] = 7), (testResults[3][1] = 7);
     expect(calculateScore(testResults, ballOverRide)).toBe(85);
@@ -83,6 +73,7 @@ describe("Test calculating the score", () => {
   });
   test("Check strikes", () => {
     //first make sure that testResults is back to default
+    testResults = backupTestArray();
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[0] = ["strike", 0];
     expect(calculateScore(testResults, ballOverRide)).toBe(91); //75 + the 7 we added to frame 1 + the 9 we scored in frame 2(strike bonus)
@@ -96,6 +87,7 @@ describe("Test calculating the score", () => {
   });
   test("Check spares", () => {
     //first make sure that testResults is back to default
+    testResults = backupTestArray();
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[0] = [5, "spare"];
     expect(calculateScore(testResults, ballOverRide)).toBe(84); //75 + the 7 we added to frame 1 + the 2 from frame 2 ball 1
@@ -107,6 +99,7 @@ describe("Test calculating the score", () => {
   });
   test("Test games ending in strikes", () => {
     //first make sure that testResults is back to default
+    testResults = backupTestArray();
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[9] = ["strike", 0];
     ballOverRide = [2, 3];
@@ -119,6 +112,7 @@ describe("Test calculating the score", () => {
   });
   test("Test games ending in spares", () => {
     //first make sure that testResults is back to default
+    testResults = backupTestArray();
     expect(calculateScore(testResults, ballOverRide)).toBe(75);
     testResults[9] = [5, "spare"];
     expect(calculateScore(testResults, [5])).toBe(85); //75 + 5 from bonus ball override + the 5 we added to frame 9
@@ -137,3 +131,17 @@ describe("Test calculate score edge cases", () => {
 describe("Test autoplay and running a full game", () => {
   const result = autoPlay();
 });
+function backupTestArray(): Array<frameScore> {
+  return [
+    [1, 2],
+    [2, 7],
+    [3, 6],
+    [4, 2],
+    [5, 3],
+    [6, 2],
+    [7, 2],
+    [8, 1],
+    [9, 0],
+    [0, 5],
+  ];
+}
